@@ -53,7 +53,7 @@ class LibraryModel extends Model{
 			return $rs;
 		}
 		else{
-			$rs = array('code=0',$rs);
+			$rs = array('code'=>0,'data'=>$rs);
 			$rs = json_encode($rs);
 			return $rs;
 		}
