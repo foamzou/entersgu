@@ -4,8 +4,9 @@ use Think\Controller;
 
 class HandlerController extends Controller{
 	public function index(){
-		//实例化用户类
+		//实例化用户、图书馆类
 		$_user = new \Home\Model\UserModel();
+		$_lib = new \Home\Model\LibraryModel();
 		//获取并解析客户端传过来的json
 		$clientData = json_decode(file_get_contents('php://input'),true);
 		//命令和数据
@@ -34,6 +35,13 @@ class HandlerController extends Controller{
 				$returnData = $_user->isLegal($u_account_type,$u_email,$u_password,$u_openid);
 				exit($returnData);
 
+			//检索图书
+			case '60001':
+				$searchType = $data['searchType'];
+				$keyword = $data['keyword'];
+				$page = $data['page'];
+				$returnData = $_lib->search($searchType,$keyword,0,$page);
+				exit($returnData);
 		}
 	}
 }

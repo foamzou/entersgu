@@ -3,17 +3,17 @@ namespace Home\Controller;
 use Think\Controller;
 class TestController extends Controller {
     public function index(){
-      /*  $_user = new \Home\Model\UserModel();
-        $_lib = new \Home\Model\LibraryModel();
-        echo($_lib->search(0,'foam',0,1));*/
-/*$u_account_type,$u_email,$u_password,$u_nickname,$u_avatar*/
+        // $_user = new \Home\Model\UserModel();
+        // $_lib = new \Home\Model\LibraryModel();
+        // echo($_lib->search(0,'jay',0,1));
+
 
         $data = array(
-            'command' => '50002',
+            'command' => '60001',
             'data' => array(
-                'u_account_type' => '1',
-                'u_email' => 'dasd@das.com',
-                'u_password' => 'dasdasfefergsdfsadfd'
+                'searchType' => '0',
+                'keyword' => '中国',
+                'page' => '122'
                 )
             );
 

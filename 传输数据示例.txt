@@ -1,0 +1,15 @@
+﻿请求URL：
+http://entersgu.hclab.cn/entersgu/index.php/Home/Handler
+所有请求皆以POST方法传输JSON数据
+
+{
+	"command":"50001",
+	"data":
+	{
+		"u_account_type":"1"
+		"u_email":"26526265@qq.com"
+		"u_password":"asfsdgrghdfhdfhdfghdfd"
+
+	}
+}
+
