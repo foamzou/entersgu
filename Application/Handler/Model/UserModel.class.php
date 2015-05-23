@@ -2,13 +2,11 @@
 /**
  * 用户实体类
  */
-namespace Home\Model;
+namespace Handler\Model;
 use Think\Model;
 class UserModel extends Model{
 	//this is a virtual model,haha~~
 	protected $autoCheckFields = false;
-
-
 
 	/**
 	 * 提交用户注册信息
@@ -26,12 +24,11 @@ class UserModel extends Model{
 		$data['u_regtime'] = date("Y-m-d H:i:s",time());
 		$data['u_permission'] = 0;
 		$data['u_status'] = 1;
-
 		//本APP账户
 		if($u_account_type == 1){
-			//用户已注册
+			//用户已存在
 			if($this->isExist($u_email)){
-				$rs = array('code'=>1);
+				$rs = array('code'=>1,'message'=>'The user already exist');
 				return json_encode($rs);
 			}
 			$data['u_email'] = $u_email;
@@ -57,11 +54,15 @@ class UserModel extends Model{
 			}
 		}
 	
+		//注册成功
 		if($isOk){
 			$rs['code'] = 0;
+			$rs['message'] = 'Registered success';
 		}
+		//异常错误
 		else{
 			$rs['code'] = -1;
+			$rs['message'] = 'Exception error';
 		}
 
 		return json_encode($rs);
@@ -79,7 +80,7 @@ class UserModel extends Model{
 	public function isLegal($u_account_type,$u_email,$u_password,$u_openid){
 		//账号不存在
 		if(! ($this->isExist($u_email) || $this->isExist($u_openid)) ){
-			return json_encode(array('code'=>3));
+			return json_encode(array('code'=>3,'message'=>'The account does not exist'));
 		}
 		//本App的账号
 		if($u_account_type == 1){
@@ -90,15 +91,18 @@ class UserModel extends Model{
 				if(M('users')->where($condition)->getField('u_status')){
 					//用户账号密码正确，且合法
 					$rs['code'] = 0;
+					$rs['message'] = 'The account is legal';
 				}
 				else{
 					//用户已经被拉进小黑屋
 					$rs['code'] = 1;
+					$rs['message'] = 'The account is illegal';
 				}
 			}
 			else{
 				//用户账号或密码错误
 				$rs['code'] = 2;
+				$rs['message'] = 'Account name or password is wrong';
 			}
 		}
 		//第三方授权登录

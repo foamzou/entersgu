@@ -1,12 +1,12 @@
 <?php
-namespace Home\Controller;
+namespace Handler\Controller;
 use Think\Controller;
 
 class HandlerController extends Controller{
 	public function index(){
 		//实例化用户、图书馆类
-		$_user = new \Home\Model\UserModel();
-		$_lib = new \Home\Model\LibraryModel();
+		$_user = new \Handler\Model\UserModel();
+		$_lib = new \Handler\Model\LibraryModel();
 		//获取并解析客户端传过来的json
 		$clientData = json_decode(file_get_contents('php://input'),true);
 		//命令和数据
@@ -42,6 +42,10 @@ class HandlerController extends Controller{
 				$page = $data['page'];
 				$returnData = $_lib->search($searchType,$keyword,0,$page);
 				exit($returnData);
+
+			//命令错误
+			default:
+				exit(json_encode('error'=>'please check your command id :)'));
 		}
 	}
 }

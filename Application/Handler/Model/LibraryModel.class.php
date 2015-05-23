@@ -1,5 +1,5 @@
 <?php
-namespace Home\Model;
+namespace Handler\Model;
 use Think\Model;
 /**
  * 图书馆模型
@@ -11,7 +11,7 @@ class LibraryModel extends Model{
 	
 	/**
 	 * 检索方法
-	 * @param  [type] $searchType       [查询类型，参数={0,1,2,3}分别表示任意字段、题名、作者和ISBN]
+	 * @param  [type] $searchType [查询类型，参数={0,1,2,3}分别表示任意字段、题名、作者和ISBN]
 	 * @param  [type] $keyword    [查询关键字]
 	 * @param  [type] $returnMode [返回类型，参数={0,1}分别表示Json和数组]
 	 * @param  [type] $page   	  [页码，默认为1]
@@ -36,7 +36,7 @@ class LibraryModel extends Model{
 		curl_close($curl);
 
 		//没有获取到图书馆的数据，可能要检查下能否连接到网址。希望不要变成校园局域网、
-		if(empty($data)) return json_encode(array('code'=>-1));
+		if(empty($data)) return json_encode(array('code'=>-1,'message'=>'The server cannot connect sguLibrary'));
 
 		//匹配结果正文 
 		$pattern = '#href="bookinfo\.aspx\?ctrlno\=([^"]+)" target="_blank">([^"]+)</a></span></td>.*<td>([^"]+)</td>.*<td>([^"]+)</td>.*<td>([^"]+)</td>.*<td class="tbr">([^"]+)</td>.*<td class="tbr">([^"]+)</td>.*<td class="tbr">([^"]+)</td>#iUs';
@@ -47,7 +47,7 @@ class LibraryModel extends Model{
 		preg_match($pattern, $data, $rsEtc);
 
 		//检索结果数为0。
-		if(empty($rsEtc)) return json_encode(array('code'=>1));
+		if(empty($rsEtc)) return json_encode(array('code'=>1,'message'=>'nothing about your search'));
 
 
 
@@ -69,7 +69,7 @@ class LibraryModel extends Model{
 			return $rs;
 		}
 		else{
-			$rs = array('code'=>0,'data'=>$rs);
+			$rs = array('code'=>0,'message'=>'successfully','etcInfo'=>$rsEtc,'bookInfo'=>$rsContent);
 			$rs = json_encode($rs);
 			return $rs;
 		}
