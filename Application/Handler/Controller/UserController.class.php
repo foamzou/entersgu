@@ -1,6 +1,9 @@
 <?php
 namespace Handler\Controller;
 use Think\Controller;
+/**
+ * 用户控制器类
+ */
 class UserController extends CommonController{
 	//客户端发送的数据
 	private static $_clientData;

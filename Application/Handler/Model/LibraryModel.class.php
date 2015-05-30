@@ -6,9 +6,11 @@ use Think\Model;
  */
 class LibraryModel extends Model{
 	protected $autoCheckFields = false;
+	
+	const PREFIX_URL = 'http://210.38.207.15:169';	 	//图书馆基础链接
+	const SEARCH_URL = '/web/searchresult.aspx?';	 	//检索链接
 	private $searchTypeArr = array('anywords','title','author','isbn_f');
 
-	
 	/**
 	 * 检索方法
 	 * @param  [type] $searchType [查询类型，参数={0,1,2,3}分别表示任意字段、题名、作者和ISBN]
@@ -24,16 +26,9 @@ class LibraryModel extends Model{
 		$keyword = iconv("utf-8", "gb2312",$keyword);
 		$keyword = urlencode($keyword);
 		$type = $this->searchTypeArr[$searchType];
-		$url = "http://210.38.207.15:169/web/searchresult.aspx?$type=$keyword&dt=ALL&cl=ALL&dp=20&sf=M_PUB_YEAR&ob=DESC&sm=table&dept=ALL&page=$page";
-		// 设置你需要抓取的URL 
-		curl_setopt($curl, CURLOPT_URL, $url); 
-		// 设置header 
-		// 设置cURL 参数，要求结果保存到字符串中还是输出到屏幕上。 
-		curl_setopt($curl,CURLOPT_RETURNTRANSFER, 1); 
-		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept-Language:zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4'));
-		// 运行cURL，请求网页 
-		$data = curl_exec($curl);
-		curl_close($curl);
+		$url = self::PREFIX_URL.self::SEARCH_URL."$type=$keyword&dt=ALL&cl=ALL&dp=20&sf=M_PUB_YEAR&ob=DESC&sm=table&dept=ALL&page=$page";
+
+		$data = self::http_get($url);
 
 		//没有获取到图书馆的数据，可能要检查下能否连接到网址。希望不要变成校园局域网、
 		if(empty($data)) return json_encode(array('code'=>-1,'message'=>'The server cannot connect sguLibrary'));
@@ -72,6 +67,61 @@ class LibraryModel extends Model{
 			$rs = array('code'=>0,'message'=>'successfully','etcInfo'=>$rsEtc,'bookInfo'=>$rsContent);
 			$rs = json_encode($rs);
 			return $rs;
+		}
+	}
+
+
+
+	/**
+	 * [Get 请求]
+	 * @param  [type] $url [description]
+	 * @return [type]      [description]
+	 */
+	private function http_get($url){
+		$curl = curl_init();
+		if(stripos($url,"https://")!==FALSE){
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+			curl_setopt($curl, CURLOPT_SSLVERSION, 1); //CURL_SSLVERSION_TLSv1
+		}
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept-Language:zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4'));
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1 );
+		$sContent = curl_exec($curl);
+		$aStatus = curl_getinfo($curl);
+		curl_close($curl);
+		if(intval($aStatus["http_code"])==200){
+			return $sContent;
+		}else{
+			return false;
+		}
+	}
+
+	/**
+	 * POST 请求
+	 * @param  [type] $url  [description]
+	 * @param  [type] $data [POST的数据]
+	 * @return [type]       [description]
+	 */
+	private function http_post($url,$data){
+		$curl = curl_init();
+		if(stripos($url,"https://")!==FALSE){
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+			curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+			curl_setopt($curl, CURLOPT_SSLVERSION, 1); //CURL_SSLVERSION_TLSv1
+		}
+		curl_setopt($curl, CURLOPT_URL, $url);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, array('Accept-Language:zh-CN,zh;q=0.8,en;q=0.6,zh-TW;q=0.4'));
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt($curl, CURLOPT_POST,true);
+		curl_setopt($curl, CURLOPT_POSTFIELDS,$data);
+		$sContent = curl_exec($curl);
+		$aStatus = curl_getinfo($curl);
+		curl_close($curl);
+		if(intval($aStatus["http_code"])==200){
+			return $sContent;
+		}else{
+			return false;
 		}
 	}
 

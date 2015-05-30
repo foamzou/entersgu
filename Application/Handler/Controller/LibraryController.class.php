@@ -1,6 +1,10 @@
 <?php
 namespace Handler\Controller;
 use Think\Controller;
+
+/**
+ * 图书馆控制器类
+ */
 class LibraryController extends CommonController{
 	//客户端发送的数据
 	private static $_clientData;
