@@ -1,0 +1,64 @@
+<include file="Public:header" />
+
+        <div id="page-wrapper">
+  
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                        文章列表
+                        <span class="small"><a href="?type_group=1">文章类</a></span>
+                        <span class="small"><a href="?type_group=2">活动类</a></span>
+                    </h1>
+                </div>
+            </div>
+
+            <div class="row">
+            <ul class="list-group">
+                <foreach name="list" item="item">
+                 <li class="list-group-item">
+                    <a href="{:U('App/Article/detail/art_id/'.$item['art_id'])}" target="_blank">{$item['art_title']}</a>
+                    <div class="btn-group align-right" role="group" aria-label="...">
+                        <span class="btn">{$item['art_type_name']}</span>
+                        <span class="btn">{$item['art_time']}</span>
+                        
+                      <a href="{:U('Home/Article/edit/art_id/'.$item['art_id'])}" class="btn btn-default">编辑</a>
+                      <button type="button" art_id="{$item['art_id']}" id="btn_del" class="btn btn-default delArticle">删除</button>
+                    </div>
+                </li>
+                </foreach>
+
+             </ul>
+            </div>  
+             
+    
+        </div>
+        <!-- /#page-wrapper -->
+<include file="Public:footer" />
+
+<script>
+    $(document).ready(function() {
+         $('.delArticle').click(function(){
+            if(confirm("确认删除吗")==true){
+                art_id = $(this).attr("art_id");
+                object = $(this);
+                var objectModel = {};
+                        objectModel['art_id'] = art_id;
+                        $.ajax({
+                            cache:false,
+                            type:"POST",
+                            url:"{:U('Article/deleteArticle')}",
+                            dataType:"json",
+                            data:objectModel,
+                            timeout:30000,
+                            error:function(){
+                                alert("Sorry,You had not the permission");
+                            },
+                            success:function(){
+                                object.parent().parent().remove();
+                            }
+                        });
+            }
+        });
+
+    });
+</script>

@@ -1,0 +1,22 @@
+@charset "UTF-8";
+/**
+ * 
+ * @authors yfbin (594620632@qq.com)
+ * @date    2015-06-21 15:50:08
+ * @version $Id$
+ */
+ @media screen and (max-width:768px){
+ 	body{
+ 		font-size: 12px;
+ 		font-family: "微软雅黑";
+ 		line-height: 200%;
+ 	}
+ 	em{
+ 		color:#8c8c8c;
+ 		font-style: normal;
+ 	}
+	img{
+		width:45%;
+		height:45%;
+	}
+ }

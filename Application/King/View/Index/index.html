@@ -1,0 +1,20 @@
+<include file="Public:header" />
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">欢迎登录系统管理平台</h1>
+                </div>
+            </div>
+
+            <div class="row">
+                <p>欢迎你，{$Think.session.adminName}</p>
+                <p>本次登录时间：{$Think.session.loginTime}</p>
+                <p>本次登录IP：{$Think.session.loginIp}</p>
+                <br/>
+                <p>上次登录时间：{$Think.session.lastLoginTime}</p>
+                <p>上次登录IP：{$Think.session.lastLoginIp}</p>
+            </div>  
+        </div>
+        <!-- /#page-wrapper -->
+
+<include file="Public:footer" />

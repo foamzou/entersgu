@@ -6,7 +6,8 @@ class TestController extends Controller {
         $mode = 2;
         //$method = 'POST';
         $method = 'GET';
-        $url = "Topic/delTopic?u_id=35&tp_id=2";
+        $getParam = '?art_id=10';
+        $url = "Article/getShareLink".$getParam;
 
         if($mode == 1){
             $_user = new \Handler\Model\UserModel();
@@ -24,10 +25,9 @@ class TestController extends Controller {
             //POST方式
             if($method == 'POST'){
                 $data = array(
-                    'tp_content' => '久未放晴的天空，依旧留着你的笑容。哭过，却无法掩埋歉疚...',
-                    'u_id' => '35',
-                    'tp_img' => base64_encode(file_get_contents('Public/11.jpg')),
-                    'tp_anonymous'=>'0'
+                    'u_account_type' => '1',
+                    'u_email' => '1234567@qq.com',
+                    'u_password' => md5('123456')
                 );
                 $postData = json_encode($data);
                 //打印发送实例

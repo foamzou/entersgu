@@ -17,11 +17,25 @@ class LibraryController extends CommonController{
 		self::$_lib = new \Handler\Model\LibraryModel();
 	}
 
+	/**
+	 * 图书检索
+	 * @return [type] [description]
+	 */
 	public function search(){
 		$searchType = self::$_clientData['searchType'];
 		$keyword = self::$_clientData['keyword'];
 		$page = self::$_clientData['page'];
-		$returnData = self::$_lib->search($searchType,$keyword,0,$page);
+		$returnData = self::$_lib->search($searchType,$keyword,$page);
+		exit($returnData);
+	}
+
+	/**
+	 * 获取图书详细信息
+	 * @return [type] [description]
+	 */
+	public function getBookInfo(){
+		$bookId = self::$_clientData['bookId'];
+		$returnData = self::$_lib->getBookInfo($bookId);
 		exit($returnData);
 	}
 }

@@ -1,0 +1,196 @@
+<include file="Public:header" />
+
+        <div id="page-wrapper">
+  
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                    资讯类别管理
+                    <span class="small"><a href="?type_group=1">文章类</a></span>
+                    <span class="small"><a href="?type_group=2">活动类</a></span>
+                    </h1>
+                </div>
+            </div>
+            <input type="hidden" id="art_type_group" value="{$art_type_group}"/>
+            <div class="row">
+
+                 <div class="container">
+                        <if condition="$art_type_group eq 1">
+                            <h3>文章类</h3>
+                        <else/>
+                            <h3>活动类</h3>
+                        </if>
+                    <div class="row clearfix">
+
+                        <div class="col-md-8 column">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>编号</th>
+                                        <th>分类名</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <foreach name="type" item="item">
+                                    <tr>
+                                        <td>{$item['art_type_id']}</td>
+                                        <td>{$item['art_type_name']}</td>
+                                        <td>
+                                            <button type="button" art_type_id="{$item['art_type_id']}"  class="btn btn-default editType">编辑</button>
+                                            <!-- 基本的分类不允许删除 -->
+                                            <if condition="$item.art_type_id egt 7">
+                                            <button type="button" art_type_id="{$item['art_type_id']}"  class="btn btn-default delType">删除</button>
+                                            </if>
+                                        </td>
+                                    </tr>
+                                </foreach>
+                                    <tr>
+                                        <td></td>
+                                        <td><input type="text" id="newTypeName"></td>
+                                        <td>
+                                            <button type="button" id="addType"  class="btn btn-primary form-control">添加</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+           </div>  
+             
+    
+        </div>
+        <!-- /#page-wrapper -->
+<include file="Public:footer" />
+
+<script>
+    $(document).ready(function() {
+        _type_id = new Array();
+        _type_name = new Array();
+
+
+        //ajax删除分类
+        $(document).on("click",".delType",function(){
+            if(confirm("确认删除吗")==true){
+                var type_id = $(this).attr("art_type_id");
+                object = $(this);
+                var objectModel = {};
+                        objectModel['art_type_id'] = type_id;
+                        $.ajax({
+                            cache:false,
+                            type:"POST",
+                            url:"{:U('Article/deleteType')}",
+                            dataType:"json",
+                            data:objectModel,
+                            timeout:30000,
+                            error:function(){
+                                alert("Sorry,You had not the permission");
+                            },
+                            success:function(){
+                                object.parent().parent().remove();
+                            }
+                        });
+            }
+        });
+
+        //编辑分类
+        $(document).on("click",".editType",function(){
+
+                var type_id = $(this).attr("art_type_id");
+                object = $(this);
+                var tds = object.parent().parent().find("td");
+                //获取选中的值
+                _type_id[type_id] = tds[0].innerHTML;
+                _type_name[type_id] = tds[1].innerHTML;
+
+
+
+                var inputObj = "<td>"+_type_id[type_id]+"</td><td><input type='text' class='form-control col-md-1' value='"+_type_name[type_id]+"'/></td><td><button type='button' art_type_id='"+_type_id[type_id]+"' class='btn btn-default cansel'>取消</button><button type='button' art_type_id='"+_type_id[type_id]+"' class='btn btn-default commit'>确定</button></td>";
+                object.parent().parent().html("").append(inputObj);
+
+        });
+
+        //取消编辑
+         $(document).on("click",".cansel",function(){
+                var type_id = $(this).attr("art_type_id");
+                object = $(this);
+                var inputObj = "<td>"+_type_id[type_id]+"</td><td>"+_type_name[type_id]+"</td><td><button type='button' art_type_id="+_type_id[type_id]+"  class='btn btn-default editType'>编辑</button><button type='button' art_type_id="+_type_id[type_id]+"  class='btn btn-default delType'>删除</button></td>";
+                object.parent().parent().html("").append(inputObj);
+
+
+        });
+
+         //确定编辑
+         $(document).on("click",".commit",function(){
+                var type_id = $(this).attr("art_type_id");
+                object = $(this);
+
+                //获取选中的值
+                var type_name = $.trim(object.parent().prev().children().val());
+                
+
+                //检验数据
+                if(type_name.length>=18 || type_name=="") {
+                    alert('the value is invalid');
+                    return;
+                }
+
+
+                //ajax修改数据
+                 var objectModel = {};
+                objectModel['art_type_id'] = type_id;
+                objectModel['art_type_name'] = type_name;
+                $.ajax({
+                    cache:false,
+                    type:"POST",
+                    url:"{:U('Article/editType')}",
+                    dataType:"json",
+                    data:objectModel,
+                    timeout:30000,
+                    error:function(){
+                        alert("Sorry,You had not the permission");
+                    },
+                    success:function(){
+                        //恢复不可编辑状态
+                        var inputObj = "<td>"+type_id+"</td><td>"+type_name+"</td><td><button type='button' art_type_id="+type_id+"  class='btn btn-default editType'>编辑</button><button type='button' art_type_id="+type_id+"  class='btn btn-default delType'>删除</button></td>";
+                        object.parent().parent().html("").append(inputObj);
+                    }
+                });
+        });
+        
+        //添加分类
+         $(document).on("click","#addType",function(){
+                var type_name = $.trim($("#newTypeName").val());
+                //检验数据
+                if( type_name.length>=18 || type_name=="") {
+                    alert('the value is invalid');
+                    return;
+                }
+                object = $(this);
+                var objectModel = {};
+                        objectModel['art_type_name'] = type_name;
+                        objectModel['art_type_group'] = $("#art_type_group").val();
+                        
+                        $.ajax({
+                            cache:false,
+                            type:"POST",
+                            url:"{:U('Article/addType')}",
+                            dataType:"json",
+                            data:objectModel,
+                            timeout:30000,
+                            error:function(){
+                                alert("Sorry,You had not the permission");
+                            },
+                            success:function(data){
+                                type_id = data['art_type_id'];
+                                var newLine = "<tr><td>"+type_id+"</td><td>"+type_name+"</td><td><button type='button' art_type_id="+type_id+"  class='btn btn-default editType'>编辑</button><button type='button' art_type_id="+type_id+" class='btn btn-default delType'>删除</button></td></tr>";   
+                                object.parent().parent().prev().after(newLine);
+                                $("#newTypeName").val("");
+                                $("#newTypeSort").val("");
+                            }
+                        });
+        });
+
+    });
+</script>

@@ -44,4 +44,51 @@ class UserController extends CommonController{
 		exit($returnData);
 	}
 
+	/**
+	 * 获取用户信息
+	 * @return [type] [description]
+	 */
+	public function getUserInfo(){
+		$to_u_id = self::$_clientData['to_u_id'];
+		$from_u_id = self::$_clientData['from_u_id'];
+
+		$returnData = self::$_user->getUserInfo($to_u_id,$from_u_id);
+		exit($returnData);
+	}
+
+	/**
+	 * 添加关注
+	 * @return [type] [description]
+	 */
+	public function addFollow(){
+		$u_id = self::$_clientData['u_id'];
+		$to_u_id = self::$_clientData['to_u_id'];
+
+		$returnData = self::$_user->addFollow($u_id,$to_u_id);
+		exit($returnData);
+	}
+
+	/**
+	 * 取消关注
+	 * @return [type] [description]
+	 */
+	public function cancelFollow(){
+		$u_id = self::$_clientData['u_id'];
+		$to_u_id = self::$_clientData['to_u_id'];
+
+		$returnData = self::$_user->cancelFollow($u_id,$to_u_id);
+		exit($returnData);
+	}
+
+	/**
+	 * 获取关注用户信息(关注和被关注)
+	 * @return [type] [description]
+	 */
+	public function getFollowInfo(){
+		$action = self::$_clientData['action'];
+		$u_id = self::$_clientData['u_id'];
+
+		$returnData = self::$_user->getFollowInfo($action,$u_id);
+		exit($returnData);
+	}
 }

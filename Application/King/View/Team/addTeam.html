@@ -1,0 +1,60 @@
+<include file="Public:header" />
+
+
+        <div id="page-wrapper">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">添加社团</h1>
+                </div>
+            </div>
+            <form method="post">
+                
+            
+            <div id="content_content"> 
+                <div class="row">
+                    
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>名称</label>
+                            <div class="form-control-wrap">
+                                <input type="text" name="team_name" maxlength="20" class="form-control"  />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>归属</label>
+                            <select class="form-control" name="team_type_id">
+                                <option value="">请选择类别</option>
+                                <foreach name="teamType" item="item">
+                                    <option value="{$item['team_type_id']}">{$item['team_type_name']}</option>
+                                </foreach>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>简介</label>
+                        <div class="form-control-wrap">
+                            <div class="input-append">
+                                <textarea class="form-control" name="team_brief" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="submit" name="submit" class="btn btn-lg btn-block  btn-primary" value="添加" />
+        </form>
+               
+        </div>
+        <!-- /#page-wrapper -->
+
+<include file="Public:footer" />

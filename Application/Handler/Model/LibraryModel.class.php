@@ -1,76 +1,106 @@
 <?php
 namespace Handler\Model;
 use Think\Model;
+
 /**
  * 图书馆模型
+ * 这里使用了开源的QueryList类作为页面抓取工具。该类可以在本项目ThinkPHP/Library/Org/Jae中找到。
  */
 class LibraryModel extends Model{
 	protected $autoCheckFields = false;
 	
-	const PREFIX_URL = 'http://210.38.207.15:169';	 	//图书馆基础链接
-	const SEARCH_URL = '/web/searchresult.aspx?';	 	//检索链接
+	const PREFIX_URL = 'http://210.38.207.15:169/web/';	 	//图书馆基础链接
+	const SEARCH_URL = 'searchresult.aspx?';	 	//检索链接
+	const BOOK_INFO_URL = 'bookinfo.aspx?';	 	//图书详细页链接
 	private $searchTypeArr = array('anywords','title','author','isbn_f');
+
+	public function _initialize(){
+		//导入QueryList类
+		import('Org.Jae.QueryList');
+	}
+
 
 	/**
 	 * 检索方法
 	 * @param  [type] $searchType [查询类型，参数={0,1,2,3}分别表示任意字段、题名、作者和ISBN]
 	 * @param  [type] $keyword    [查询关键字]
-	 * @param  [type] $returnMode [返回类型，参数={0,1}分别表示Json和数组]
 	 * @param  [type] $page   	  [页码，默认为1]
 	 * @return [type]             [0检索成功，1结果数为0，-1检索系统出现故障]
 	 */
-	public function search($searchType,$keyword,$returnMode,$page=1){
+	public function search($searchType,$keyword,$page=1){
 		// 初始化一个 cURL 对象 
 		header("Content-type: text/html; charset=utf-8"); 
-		$curl = curl_init();
 		$keyword = iconv("utf-8", "gb2312",$keyword);
 		$keyword = urlencode($keyword);
 		$type = $this->searchTypeArr[$searchType];
 		$url = self::PREFIX_URL.self::SEARCH_URL."$type=$keyword&dt=ALL&cl=ALL&dp=20&sf=M_PUB_YEAR&ob=DESC&sm=table&dept=ALL&page=$page";
 
-		$data = self::http_get($url);
-
-		//没有获取到图书馆的数据，可能要检查下能否连接到网址。希望不要变成校园局域网、
-		if(empty($data)) return json_encode(array('code'=>-1,'message'=>'The server cannot connect sguLibrary'));
-
-		//匹配结果正文 
-		$pattern = '#href="bookinfo\.aspx\?ctrlno\=([^"]+)" target="_blank">([^"]+)</a></span></td>.*<td>([^"]+)</td>.*<td>([^"]+)</td>.*<td>([^"]+)</td>.*<td class="tbr">([^"]+)</td>.*<td class="tbr">([^"]+)</td>.*<td class="tbr">([^"]+)</td>#iUs';
-		preg_match_all($pattern, $data, $rsContentTemp);
-		
-		//匹配结果数,页码和总页数
-		$pattern = '#<span id="ctl00_ContentPlaceHolder1_countlbl"><font color="Red">([^"]+)</font></span>.*第<span class="rf"><span id="ctl00_ContentPlaceHolder1_dplblfl1">([^"]+)</span></span>/<span id="ctl00_ContentPlaceHolder1_gplblfl1">([^"]+)</span>页#iUs';
-		preg_match($pattern, $data, $rsEtc);
-
+		//抓取图书基本信息(结果数,页码和总页数)
+		$reg = array(
+			'rsSum' => array('#ctl00_ContentPlaceHolder1_countlbl','text'),
+			'currentPage'=>array('#ctl00_ContentPlaceHolder1_dplblfl2','text'),
+			'pageSum'=>array('#ctl00_ContentPlaceHolder1_gplblfl2','text'),
+			'notFound'=>array('#ctl00_ContentPlaceHolder1_notfoundcountlbl','text'),
+			);
+		$query = \QueryList::Query($url,$reg);
+		$etcInfo = $query->jsonArr[0];
+		//没有获取到图书馆的数据，可能要检查下能否连接到网址。希望不要变成校园局域网
+		if(empty($etcInfo)) return json_encode(array('code'=>-1,'message'=>'The server cannot connect sguLibrary'));
 		//检索结果数为0。
-		if(empty($rsEtc)) return json_encode(array('code'=>1,'message'=>'nothing about your search'));
+		if($etcInfo['notFound']=='0') return json_encode(array('code'=>1,'message'=>'nothing about your search'));
+		//列表
+		$reg = array(
+				'bookId' => array('td a','href','',function($url){return str_replace('bookinfo.aspx?ctrlno=','',$url);}),
+				'bookName' => array('td:eq(1)','text'),
+				'author' => array('td:eq(2)','text'),
+				'publishingHouse' => array('td:eq(3)','text'),
+				'publishTime' => array('td:eq(4)','text'),
+				'ISBN' => array('td:eq(5)','text'),
+				'bookSum' => array('td:eq(6)','text'),
+				'bookRemain' => array('td:eq(7)','text')
+			);
+		$rang = '#searchresultpagefl tbody tr:not([class])';
+		$query->setQuery($reg,$rang);
+		$bookInfo = $query->jsonArr;
 
-
-
-		//去掉数组中第一项冗余值
-		array_shift($rsContentTemp);
-		array_shift($rsEtc);
-		$rsEtc = array('rsSum'=>$rsEtc[0],'currentPage'=>$rsEtc[1],'pageSum'=>$rsEtc[2]);
-
-		for($i=0;$i<count($rsContentTemp[0]);++$i){
-			$rsContent[$i] = array('bookId'=>$rsContentTemp[0][$i],'bookName'=>$rsContentTemp[1][$i],'author'=>$rsContentTemp[2][$i],
-				'publishingHouse'=>$rsContentTemp[3][$i],'publishTime'=>$rsContentTemp[4][$i],'ISBN'=>$rsContentTemp[5][$i],
-				'bookSum'=>$rsContentTemp[6][$i],'bookRemain'=>$rsContentTemp[7][$i]);
-		}
-
-
-		$rs = array('etcInfo'=>$rsEtc,'bookInfo'=>$rsContent);
-
-		if($returnMode==1){
-			return $rs;
-		}
-		else{
-			$rs = array('code'=>0,'message'=>'successfully','etcInfo'=>$rsEtc,'bookInfo'=>$rsContent);
-			$rs = json_encode($rs);
-			return $rs;
-		}
+		$rs = array('code'=>0,'message'=>'successfully','etcInfo'=>$etcInfo,'bookInfo'=>$bookInfo);
+		$rs = json_encode($rs);
+		return $rs;
+		
 	}
 
 
+
+	/**
+	 * 获取图书信息
+	 * @param  [type] $bookId [description]
+	 * @return [type]         [description]
+	 */
+	public function getBookInfo($bookId){
+		
+		//首先是抓取图书基本信息
+		$reg = array(
+			'baseInfo' => array('#ctl00_ContentPlaceHolder1_bookcardinfolbl','text'),
+			);
+		$query = \QueryList::Query(self::PREFIX_URL.self::BOOK_INFO_URL.'ctrlno='.$bookId,$reg);
+		$baseInfo = $query->jsonArr;
+		//没有获取到图书馆的数据，可能要检查下能否连接到网址。或者图书ID不存在
+		if(empty($baseInfo)) return json_encode(array('code'=>-1,'message'=>'The server cannot connect sguLibrary'));
+		//抓取借阅情况
+		$reg = array(
+				'address' => array('td:eq(0)','text'),
+				'getNO' => array('td:eq(1)','text'),
+				'status' => array('td:eq(5)','text')
+			);
+		$rang = '#bardiv tbody tr:not([class])';
+		$query->setQuery($reg,$rang);
+		$borrowInfo = $query->jsonArr;
+		$rs['code'] = 0;
+		$rs['message'] = 'Success';
+		$rs['baseInfo'] = $baseInfo[0]['baseInfo'];
+		$rs['borrowInfo'] = $borrowInfo;
+		return json_encode($rs);
+	}
 
 	/**
 	 * [Get 请求]
@@ -124,8 +154,6 @@ class LibraryModel extends Model{
 			return false;
 		}
 	}
-
-
 
 
 }

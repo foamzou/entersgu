@@ -1,0 +1,13 @@
+.align-right{display:inline-block; float:right;}
+/*成员头像*/
+.avatar img {
+  width:8%;
+  height:8%;
+  border-radius:99px;
+}
+
+.avatarBig img {
+  width:48%;
+  height:48%;
+  border-radius:99px;
+}

@@ -1,0 +1,96 @@
+<include file="Public:header" />
+
+        <div id="page-wrapper">
+  
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                        用户列表
+                    </h1>
+                </div>
+            </div>
+
+            <div class="row">
+                   <div class="row clearfix">
+
+                        <div class="col-md-8 column">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>编号</th>
+                                        <th>昵称</th>
+                                        <th>邮箱</th>
+                                        <th>账号类型</th>
+                                        <th>OpenID</th>
+                                        <th>性别</th>
+                                        <th>年级</th>
+                                        <th>学院</th>
+                                        <th>专业</th>
+                                        <th>注册时间</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <foreach name="user" item="item">
+                                    <tr>
+                                        <td>{$item['u_id']}</td>
+                                        <td>{$item['u_nickname']}</td>
+                                        <td>{$item['u_email']}</td>
+                                        <td>{$item['u_account_type']}</td>
+                                        <td>{$item['u_openid']}</td>
+                                        <td>{$item['u_sex']}</td>
+                                        <td>{$item['u_class']}</td>
+                                        <td>{$item['clg_name']}</td>
+                                        <td>{$item['m_name']}</td>
+                                        <td>{$item['u_regtime']}</td>
+                                        <td>{$item['u_status']}</td>
+                                        <td>
+                                            <button type="button" u_nickname="{$item['u_nickname']}" u_id="{$item['u_id']}"  class="btn btn-default delUser">删除</button>
+                                        </td>
+                                    </tr>
+                                </foreach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+            </div>  
+             
+    
+        </div>
+        <!-- /#page-wrapper -->
+<include file="Public:footer" />
+
+<script>
+    $(document).ready(function() {
+         $('.delUser').click(function(){
+            u_id = $(this).attr("u_id");
+            u_nickname = $(this).attr("u_nickname");
+            var answer = prompt("警告！！你在试图删除"+u_nickname+"，这将是一个不可逆的操作。请输入该用户ID删除","");
+            if(answer!=null && answer == u_id){
+                
+                object = $(this);
+                var objectModel = {};
+                        objectModel['u_id'] = u_id;
+                        $.ajax({
+                            cache:false,
+                            type:"POST",
+                            url:"{:U('User/deleteUser')}",
+                            dataType:"json",
+                            data:objectModel,
+                            timeout:30000,
+                            error:function(){
+                                alert("Sorry,You had not the permission");
+                            },
+                            success:function(){
+                                object.parent().parent().remove();
+                            }
+                        });
+            }
+            else{
+                alert('输入ID错误');
+            }
+        });
+
+    });
+</script>

@@ -1,0 +1,98 @@
+<include file="Public:header" />
+<js href="__PUBLIC__/King/ueditor/ueditor.config.js" />    
+<js href="__PUBLIC__/King/ueditor/ueditor.all.min.js" />
+<js href="__PUBLIC__/King/js/laydate/laydate.dev.js" />
+
+
+        <div id="page-wrapper">
+        <form action="{:U('Article/sendArticle')}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="art_type_group" value="{$art_type_group}"/>
+            <div class="row">
+                <h1 class="page-header">
+                    发表资讯
+                    <span class="small"><a href="?type_group=1">文章类</a></span>
+                    <span class="small"><a href="?type_group=2">活动类</a></span>
+                </h1>
+
+            </div>
+            <div class="form-group">
+                    <input type="text" name="title" maxlength="20" class="form-control" placeholder="<if condition='$art_type_group eq 1'>输入标题<else/>输入活动名称</if>"/>
+            </div>
+            <div class="form-group">
+                <span>选择资讯分类</span>
+                <select name="type_id">
+                    <foreach name="typeList" item="item">
+                        <option value="{$item.art_type_id}">{$item.art_type_name}</option>
+                    </foreach>
+                </select>
+            </div>
+            <!-- 若是活动类则需多加几个模块 -->
+            <if condition="$art_type_group eq 2">
+                <div class="form-group">
+                    <input type="text" name="address" maxlength="30"  placeholder="输入活动地点" />
+                    开始时间:<input id="startTime" name="startTime" class="laydate-icon" >
+
+                    结束时间:<input id="endTime" name="endTime" class="laydate-icon" >
+
+                </div>
+            </if>
+             <div class="form-group">
+                    <label for="cover">
+                        <!-- 文章类 -->
+                        <if condition="$art_type_group eq 1">
+                            (可选)上传封面(建议640*960规格,不超过1M)
+                        <!-- 活动类 -->
+                        <else/>
+                            (可选)上传封面(建议720*960规格,不超过1M)
+                        </if>
+                    </label><input type="file" id="cover" name="cover" />
+                   <p class="help-block">
+                       先保留着做ajax Tip
+                   </p>
+               </div>
+
+            <div class="form-group">
+                <script id="container" name="content" type="text/plain" style="width:1024px;height:500px;"></script>
+            </div>  
+             <div class="form-group">
+             <input type="submit" class="btn btn-primary btn-lg btn-block" value="发布" />
+            </div>  
+        </form>
+        </div>
+        <!-- /#page-wrapper -->
+<include file="Public:footer" />
+
+
+<script>
+//富文本编辑器
+$(function(){
+    var url='__PUBLIC__/King/ueditor/php/controller.php';
+    var ue = UE.getEditor('container',{
+        serverUrl :url,
+        UEDITOR_HOME_URL:'__PUBLIC__/King/ueditor/',
+    });
+
+    ue.ready(function(){
+        ue.execCommand('serverparam', {
+            'userid': '1',
+            'username': 'admin',
+        });
+    });
+
+
+//日历
+
+    laydate({
+        elem: '#startTime',
+        format:'YYYY-MM-DD hh:mm:ss',
+        istime:true
+    });
+
+    laydate({
+        elem: '#endTime',
+        format:'YYYY-MM-DD hh:mm:ss',
+        istime:true
+    });
+}) 
+
+</script>

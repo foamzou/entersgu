@@ -1,0 +1,27 @@
+@charset "UTF-8";
+/**
+ * 
+ * @authors HCLAB (you@example.org)
+ * @date    2015-07-07 12:40:45
+ * @version $Id$
+ */
+html{
+	font-size:100px; /* 定义个跟字体 */
+}
+body{
+	width:3.1rem;     /* 使用rem,宽为3.2 × 100px ＝ 320px */
+	font-size:16px;
+	font-family: "微软雅黑";
+	text-align:justify;
+	line-height: 200%;
+	padding:0 0.1rem; /* 字体左右留白 */
+	color:#000;
+	margin:0 auto;   /* 水平居中 */
+}
+em{
+	color:#8c8c8c;
+ 	font-style: normal;
+}
+img{
+	max-width:2.8rem; /* 设置图片最大宽度*/
+}

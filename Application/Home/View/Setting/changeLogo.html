@@ -1,0 +1,29 @@
+<include file="Public:header" />
+
+
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">更改Logo</h1>
+        </div>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+
+        <div id="content_content"> 
+           <div class="form-group">
+            <div>当前Logo：<img src="__PUBLIC__/UploadFiles/team_logo/{$logo}"></div>
+            <label for="team_logo">
+               上传Logo(建议XX*XX规格,不超过1M)
+           </label><input type="file" id="team_logo" name="team_logo" />
+           <p class="help-block">
+             先保留着做ajax Tip
+         </p>
+     </div>
+
+     <input type="submit" name="submit" class="btn btn-lg btn-block  btn-primary" value="确定更改" />
+ </form>
+
+</div>
+<!-- /#page-wrapper -->
+
+<include file="Public:footer" />

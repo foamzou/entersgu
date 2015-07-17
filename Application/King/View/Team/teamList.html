@@ -1,0 +1,129 @@
+<include file="Public:header" />
+
+        <div id="page-wrapper">
+  
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="page-header">
+                        社团协会列表
+                    </h1>
+                </div>
+            </div>
+
+            <div class="row">
+                   <div class="row clearfix">
+
+                        <div class="col-md-12 column">
+                            <table class="table table-hover table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>编号</th>
+                                        <th>名字</th>
+                                        <th>LOGO</th>
+                                        <th>公告</th>
+                                        <th>签名</th>
+                                        <th>简介</th>
+                                        <th>归属</th>
+                                        <th>管理员用户ID</th>
+                                        <th>设置管理员</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <foreach name="team" item="item">
+                                    <tr>
+                                        <td>{$item['team_id']}</td>
+                                        <td>{$item['team_name']}</td>
+                                        <td>{$item['team_logo']}</td>
+                                        <td>{$item['team_notice']}</td>
+                                        <td>{$item['team_sign']}</td>
+                                        <td>{$item['team_brief']}</td>
+                                        <td>{$item['team_type_name']}</td>
+                                        <td>{$item['u_id']}</td>
+                                        <td>
+                                            <button type="button" team_name="{$item['team_name']}" team_id="{$item['team_id']}"  class="btn btn-default changeAdmin">更改管理员</button>
+                                        </td>
+                                        <td>
+                                            <button type="button" team_name="{$item['team_name']}" team_id="{$item['team_id']}"  class="btn btn-default delTeam">删除</button>
+                                        </td>
+                                    </tr>
+                                </foreach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+            </div>  
+             
+    
+        </div>
+        <!-- /#page-wrapper -->
+<include file="Public:footer" />
+
+<script>
+    $(document).ready(function() {
+        $('.delTeam').click(function(){
+            team_id = $(this).attr("team_id");
+            team_name = $(this).attr("team_name");
+            var answer = prompt("警告！！你在试图删除"+team_name+"，这将是一个不可逆的操作。请输入该协会ID删除","");
+            if(answer!=null && answer == team_id){
+                
+                object = $(this);
+                var objectModel = {};
+                        objectModel['team_id'] = team_id;
+                        $.ajax({
+                            cache:false,
+                            type:"POST",
+                            url:"{:U('Team/delTeam')}",
+                            dataType:"json",
+                            data:objectModel,
+                            timeout:30000,
+                            error:function(){
+                                alert("Sorry,You had not the permission");
+                            },
+                            success:function(){
+                                object.parent().parent().remove();
+                            }
+                        });
+            }
+            else{
+                alert('输入ID错误');
+            }
+        });
+
+
+        $('.changeAdmin').click(function(){
+
+            team_id = $(this).attr("team_id");
+            team_name = $(this).attr("team_name");
+            var u_id = prompt("你将为"+team_name+"设置管理员。请输入一个用户ID");
+            if(u_id!=null){
+                
+                object = $(this);
+                var objectModel = {};
+                        objectModel['u_id'] = u_id;
+                        objectModel['team_id'] = team_id;
+                        $.ajax({
+                            cache:false,
+                            type:"POST",
+                            url:"{:U('Team/changeAdmin')}",
+                            dataType:"json",
+                            data:objectModel,
+                            timeout:30000,
+                            error:function(){
+                                alert("Sorry,there are something wrong");
+                            },
+                            success:function(data){
+                                if(data=='1'){
+                                    alert('用户不是该协会成员');
+                                }else if(data=='2'){
+                                    alert('该用户已经是该协会或其他协会的管理员了');
+                                }else{
+                                 object.parent().prev().html("").append(u_id);
+                                }
+                            }
+                        });
+            }
+
+        });
+    });
+</script>
